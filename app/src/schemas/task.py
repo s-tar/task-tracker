@@ -17,8 +17,8 @@ class TaskResponse(BaseModel):
 
 
 class TaskUpdateData(BaseModel):
-    title: str | None = Field(default=None, min_length=1, max_length=255)
-    description: str | None = Field(max_length=250)
+    title: str | None = Field(default=None, min_length=1, max_length=250)
+    description: str | None = Field(max_length=500)
     deadline: date | None = None
     status_id: int | None = None
     priority_id: int | None = None
