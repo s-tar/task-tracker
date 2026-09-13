@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 from fastapi import HTTPException
 
-from src.models.task import Task
 from src.repositories.task_repository import TaskRepository
 from src.schemas.pagination import Pagination
 from src.schemas.task import TaskCreateData
@@ -9,6 +8,7 @@ from src.schemas.task import TaskDeleteResponse
 from src.schemas.task import TaskResponse
 from src.schemas.task import TaskUpdateData
 from src.services import task_service
+from src.services.task_service import TaskOrderBy
 from src.utils.convertor import model_to_schema
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
@@ -18,24 +18,22 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 async def list_tasks(
     page: int = 1,
     per_page: int = 20,
+    search: str = None,
     status_id: int = None,
     priority_id: int = None,
+    order_by: TaskOrderBy = TaskOrderBy.DEADLINE_DESC,
 ):
     page = page if page > 0 else 1
-    filters = []
-    if status_id:
-        filters.append(Task.status_id == status_id)
-
-    if priority_id:
-        filters.append(Task.priority_id == priority_id)
-
-    tasks = await TaskRepository.get_list(
-        *filters,
+    tasks = await task_service.get_tasks(
         offset=(page - 1) * per_page,
         limit=per_page,
-        order_by=[Task.created_at.desc()],
+        search=search,
+        status_id=status_id,
+        priority_id=priority_id,
+        order_by=order_by,
     )
-    tasks_count = await TaskRepository.count(*filters)
+
+    tasks_count = await task_service.get_tasks_count(search=search, status_id=status_id, priority_id=priority_id)
     return Pagination(
         items=[model_to_schema(task, TaskResponse) for task in tasks],
         page=page,

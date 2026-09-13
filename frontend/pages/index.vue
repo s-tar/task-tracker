@@ -11,7 +11,7 @@ const tasksStore = useTasksStore()
 const prioritiesStore = usePrioritiesStore()
 const statusesStore = useStatusesStore()
 
-const {tasks, loading, error, pagination, filterStatusId, filterPriorityId} = storeToRefs(tasksStore)
+const {tasks, loading, error, pagination, filterStatusId, filterPriorityId, filterSearch, filterOrderBy} = storeToRefs(tasksStore)
 const {priorityOptions} = storeToRefs(prioritiesStore)
 const {statusOptions} = storeToRefs(statusesStore)
 
@@ -44,31 +44,42 @@ async function loadTasksList() {
 }
 
 onMounted(async () => {
+  loading.value = true
   tasksStore.setFilters(
-    route.query.status_id ? Number(route.query.status_id) : null,
-    route.query.priority_id ? Number(route.query.priority_id) : null,
+      route.query.status_id ? Number(route.query.status_id) : null,
+      route.query.priority_id ? Number(route.query.priority_id) : null,
+      route.query.search ? String(route.query.search) : null,
   )
-  await Promise.all([prioritiesStore.loadPriorities(), statusesStore.loadStatuses()])
+  if (route.query.order_by) tasksStore.setOrderBy(String(route.query.order_by))
+  await prioritiesStore.loadPriorities()
+  await statusesStore.loadStatuses()
   await loadTasksList()
 })
 
-// Store → URL: push when user changes filters via TaskFilters
-watch([filterStatusId, filterPriorityId], ([sId, pId]) => {
+watch([filterStatusId, filterPriorityId, filterSearch, filterOrderBy], ([sId, pId, search, orderBy]) => {
   const urlStatus = route.query.status_id ? Number(route.query.status_id) : null
   const urlPriority = route.query.priority_id ? Number(route.query.priority_id) : null
-  if (sId === urlStatus && pId === urlPriority) return
+  const urlSearch = route.query.search ? String(route.query.search) : null
+  const urlOrderBy = route.query.order_by ? String(route.query.order_by) : 'deadline_desc'
+  if (sId === urlStatus && pId === urlPriority && search === urlSearch && orderBy === urlOrderBy) return
   const query: Record<string, string> = {}
   if (sId) query.status_id = String(sId)
   if (pId) query.priority_id = String(pId)
+  if (search) query.search = search
+  if (orderBy && orderBy !== 'deadline_desc') query.order_by = orderBy
   router.push({query})
 })
 
-// URL → store + reload: covers page changes, back/forward, and post-filter-push navigation
-watch([page, () => route.query.status_id, () => route.query.priority_id], ([, sId, pId]) => {
+watch([page, () => route.query.status_id, () => route.query.priority_id, () => route.query.search, () => route.query.order_by], ([, sId, pId, search, orderBy]) => {
   const newStatus = sId ? Number(sId as string) : null
   const newPriority = pId ? Number(pId as string) : null
-  if (newStatus !== filterStatusId.value || newPriority !== filterPriorityId.value) {
-    tasksStore.setFilters(newStatus, newPriority)
+  const newSearch = search ? String(search) : null
+  const newOrderBy = orderBy ? String(orderBy) : 'deadline_desc'
+  if (newStatus !== filterStatusId.value || newPriority !== filterPriorityId.value || newSearch !== filterSearch.value) {
+    tasksStore.setFilters(newStatus, newPriority, newSearch)
+  }
+  if (newOrderBy !== filterOrderBy.value) {
+    tasksStore.setOrderBy(newOrderBy)
   }
   loadTasksList()
 })
@@ -116,7 +127,10 @@ async function handleDelete(id: number) {
   <UContainer class="py-10">
     <Header @new-task="openCreateForm"/>
 
-    <TaskFilters/>
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
+      <TaskFilters/>
+      <TaskOrder/>
+    </div>
 
     <TaskList
         :tasks="tasks"

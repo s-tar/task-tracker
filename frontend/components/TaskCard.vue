@@ -25,6 +25,10 @@ const priorityColorMap: Record<string, string> = {
 const currentStatus = computed(() => statuses.value.find((s) => s.id === props.task.status_id))
 const currentPriority = computed(() => priorities.value.find((p) => p.id === props.task.priority_id))
 
+function formatDate(dateStr: string) {
+  return new Intl.DateTimeFormat('uk-UA').format(new Date(dateStr))
+}
+
 const showDeleteConfirm = ref(false)
 
 function confirmDelete() {
@@ -72,8 +76,8 @@ function confirmDelete() {
     <template #footer>
       <div class="flex items-center justify-between gap-2 grow">
         <div class="flex flex-col gap-0.5 text-xs text-gray-500 dark:text-gray-400 min-w-0">
-          <span>Created: {{ new Date(task.created_at).toLocaleDateString() }}</span>
-          <span v-if="task.deadline">Due: {{ new Date(task.deadline).toLocaleDateString() }}</span>
+          <span>Created: {{ formatDate(task.created_at) }}</span>
+          <span v-if="task.deadline">Due: {{ formatDate(task.deadline) }}</span>
         </div>
         <UBadge :color="priorityColorMap[currentPriority?.code ?? '']" variant="subtle" class="shrink-0">
           {{ currentPriority?.name ?? '—' }}

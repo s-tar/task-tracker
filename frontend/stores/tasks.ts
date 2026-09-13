@@ -1,4 +1,4 @@
-import type { Task, Pagination, TaskCreatePayload, TaskUpdatePayload } from '~/types'
+import type {Pagination, Task, TaskCreatePayload, TaskUpdatePayload} from '~/types'
 
 export const useTasksStore = defineStore('TasksStore', () => {
     const config = useRuntimeConfig()
@@ -7,25 +7,34 @@ export const useTasksStore = defineStore('TasksStore', () => {
     const tasks = ref<Task[]>([])
     const loading = ref(false)
     const error = ref<string | null>(null)
-    const pagination = ref<Omit<Pagination<never>, 'items'>>({ page: 1, per_page: 12, total: 0 })
+    const pagination = ref<Omit<Pagination<never>, 'items'>>({page: 1, per_page: 12, total: 0})
     const filterStatusId = ref<number | null>(null)
     const filterPriorityId = ref<number | null>(null)
+    const filterSearch = ref<string | null>(null)
+    const filterOrderBy = ref<string>('deadline_desc')
 
-    function setFilters(statusId: number | null, priorityId: number | null) {
+    function setFilters(statusId: number | null, priorityId: number | null, search: string | null = filterSearch.value) {
         filterStatusId.value = statusId
         filterPriorityId.value = priorityId
+        filterSearch.value = search
+    }
+
+    function setOrderBy(orderBy: string) {
+        filterOrderBy.value = orderBy
     }
 
     async function fetchTasks(page = 1, perPage = 12) {
         loading.value = true
         error.value = null
         try {
-            const query: Record<string, number> = { page, per_page: perPage }
+            const query: Record<string, string | number> = {page, per_page: perPage}
             if (filterStatusId.value) query.status_id = filterStatusId.value
             if (filterPriorityId.value) query.priority_id = filterPriorityId.value
-            const res = await $fetch<Pagination<Task>>(`${base}/tasks`, { query })
+            if (filterSearch.value) query.search = filterSearch.value
+            query.order_by = filterOrderBy.value
+            const res = await $fetch<Pagination<Task>>(`${base}/tasks`, {query})
             tasks.value = res.items
-            pagination.value = { page: res.page, per_page: res.per_page, total: res.total }
+            pagination.value = {page: res.page, per_page: res.per_page, total: res.total}
         } catch (e: unknown) {
             error.value = (e as Error)?.message ?? 'Failed to load tasks'
         } finally {
@@ -51,9 +60,24 @@ export const useTasksStore = defineStore('TasksStore', () => {
     }
 
     async function deleteTask(id: number) {
-        await $fetch(`${base}/tasks/${id}`, { method: 'DELETE' })
+        await $fetch(`${base}/tasks/${id}`, {method: 'DELETE'})
         tasks.value = tasks.value.filter((t) => t.id !== id)
     }
 
-    return { tasks, loading, error, pagination, filterStatusId, filterPriorityId, setFilters, fetchTasks, createTask, updateTask, deleteTask }
+    return {
+        tasks,
+        loading,
+        error,
+        pagination,
+        filterStatusId,
+        filterPriorityId,
+        filterSearch,
+        filterOrderBy,
+        setFilters,
+        setOrderBy,
+        fetchTasks,
+        createTask,
+        updateTask,
+        deleteTask,
+    }
 })
