@@ -18,11 +18,11 @@ function onPageChange(newPage: number) {
 <template>
   <div v-if="pageCount > 1" class="flex justify-center mt-8">
     <UPagination
-        :model-value="page"
-        :page-count="perPage"
+        :page="page"
+        :items-per-page="perPage"
         :total="total"
         show-edges
-        @update:model-value="onPageChange"
+        @update:page="onPageChange"
     />
   </div>
 </template>

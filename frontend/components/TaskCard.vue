@@ -10,18 +10,6 @@ const emit = defineEmits<{
 const {statuses} = storeToRefs(useStatusesStore())
 const {priorities} = storeToRefs(usePrioritiesStore())
 
-const statusColorMap: Record<string, string> = {
-  TODO: 'warning',
-  IN_PROGRESS: 'secondary',
-  DONE: 'primary',
-}
-
-const priorityColorMap: Record<string, string> = {
-  LOW: 'primary',
-  MEDIUM: 'warning',
-  HIGH: 'error',
-}
-
 const currentStatus = computed(() => statuses.value.find((s) => s.id === props.task.status_id))
 const currentPriority = computed(() => priorities.value.find((p) => p.id === props.task.priority_id))
 
@@ -53,28 +41,9 @@ function handleDetailDelete(id: number) {
     <template #header>
       <div class="flex items-center justify-between grow gap-2">
         <span class="font-semibold truncate">
-          <UBadge :color="statusColorMap[currentStatus?.code ?? '']" variant="subtle">
-            {{ currentStatus?.name ?? '—' }}
-          </UBadge>
+          <PriorityBadge :priority="currentPriority"/>
           {{ task.title }}
         </span>
-        <div class="flex gap-2 shrink-0">
-          <UButton
-              size="md"
-              variant="ghost"
-              icon="i-heroicons-pencil-square"
-              @click.stop="emit('edit', task)"
-              title="Edit"
-          />
-          <UButton
-              size="md"
-              variant="ghost"
-              icon="i-heroicons-trash"
-              color="red"
-              @click.stop="showDeleteConfirm = true"
-              title="Delete"
-          />
-        </div>
       </div>
     </template>
 
@@ -89,9 +58,7 @@ function handleDetailDelete(id: number) {
           <span>Created: {{ formatDate(task.created_at) }}</span>
           <span v-if="task.deadline">Due: {{ formatDate(task.deadline) }}</span>
         </div>
-        <UBadge :color="priorityColorMap[currentPriority?.code ?? '']" variant="subtle" class="shrink-0">
-          {{ currentPriority?.name ?? '—' }}
-        </UBadge>
+        <StatusBadge :status="currentStatus"/>
       </div>
     </template>
   </UCard>

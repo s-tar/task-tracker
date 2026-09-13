@@ -11,11 +11,20 @@ const tasksStore = useTasksStore()
 const prioritiesStore = usePrioritiesStore()
 const statusesStore = useStatusesStore()
 
-const {tasks, loading, error, pagination, filterStatusId, filterPriorityId, filterSearch, filterOrderBy} = storeToRefs(tasksStore)
+const {
+  tasks,
+  loading,
+  error,
+  pagination,
+  filterStatusId,
+  filterPriorityId,
+  filterSearch,
+  filterOrderBy
+} = storeToRefs(tasksStore)
 const {priorityOptions} = storeToRefs(prioritiesStore)
 const {statusOptions} = storeToRefs(statusesStore)
 
-const PER_PAGE = 3
+const PER_PAGE = 12
 const page = computed(() => Number(route.query.page) || 1)
 
 const showModal = ref(false)
@@ -124,7 +133,7 @@ async function handleDelete(id: number) {
 </script>
 
 <template>
-  <UContainer class="py-10">
+  <UContainer class="py-10 min-h-screen">
     <Header @new-task="openCreateForm"/>
 
     <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
