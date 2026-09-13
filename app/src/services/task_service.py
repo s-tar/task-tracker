@@ -1,5 +1,7 @@
 from enum import Enum
 
+from sqlalchemy import func
+
 from src.models.task import Task
 from src.repositories.priority_repository import PriorityRepository
 from src.repositories.status_repository import StatusRepository
@@ -23,8 +25,8 @@ ORDER_BY_FIELDS_MAP = {
     TaskOrderBy.DATE_CREATED_DESC: Task.created_at.desc(),
     TaskOrderBy.DEADLINE: Task.deadline,
     TaskOrderBy.DEADLINE_DESC: Task.deadline.desc().nulls_last(),
-    TaskOrderBy.TITLE: Task.title,
-    TaskOrderBy.TITLE_DESC: Task.title.desc(),
+    TaskOrderBy.TITLE: func.lower(Task.title),
+    TaskOrderBy.TITLE_DESC: func.lower(Task.title).desc(),
 }
 
 
