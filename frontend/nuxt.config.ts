@@ -1,7 +1,10 @@
 export default defineNuxtConfig({
-    devtools: { enabled: true },
+    devtools: {enabled: true},
     modules: ['@pinia/nuxt', '@nuxt/ui'],
     css: ['~/assets/css/main.css'],
+    ui: {
+        colorMode: false,
+    },
     icon: {
         localApiEndpoint: '/_nuxt_icon',
         serverBundle: {
