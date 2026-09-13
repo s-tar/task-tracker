@@ -1,0 +1,20 @@
+{
+  "name": "task-tracker-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt dev --host 0.0.0.0",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview"
+  },
+  "devDependencies": {
+    "nuxt": "4.5.2",
+    "@nuxt/ui": "4.11.1"
+  },
+  "dependencies": {
+    "@iconify-json/heroicons": "^1.2.0",
+    "@pinia/nuxt": "^0.5.4",
+    "pinia": "^2.2.0"
+  }
+}
