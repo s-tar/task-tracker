@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { Task, TaskCreatePayload, SelectOption } from '~/types'
+import type {Task, TaskCreatePayload, SelectOption} from '~/types'
 
 const props = defineProps<{
   modelValue: boolean
   task?: Task | null
   priorityOptions: SelectOption[]
   statusOptions: SelectOption[]
+  fieldErrors?: Record<string, string>
 }>()
 
 const emit = defineEmits<{
@@ -45,45 +46,47 @@ function close() {
 }
 
 function handleSave() {
-  emit('save', { ...form })
+  emit('save', {...form})
 }
 </script>
 
 <template>
-  <UModal :model-value="modelValue" @update:model-value="close">
-    <UCard>
-      <template #header>
-        <h2 class="text-lg font-semibold">{{ isEdit ? 'Edit Task' : 'New Task' }}</h2>
-      </template>
+  <UModal :open="modelValue" @update:open="close">
+    <template #content>
+      <UCard>
+        <template #header>
+          <h2 class="text-lg font-semibold">{{ isEdit ? 'Edit Task' : 'New Task' }}</h2>
+        </template>
 
-      <div class="space-y-4">
-        <UFormGroup label="Title" required>
-          <UInput v-model="form.title" placeholder="Task title"/>
-        </UFormGroup>
-        <UFormGroup label="Description">
-          <UTextarea v-model="form.description" placeholder="Optional description"/>
-        </UFormGroup>
-        <UFormGroup label="Deadline">
-          <UInput v-model="form.deadline" type="date"/>
-        </UFormGroup>
-        <div class="grid grid-cols-2 gap-4">
-          <UFormGroup label="Priority">
-            <USelect v-model="form.priority_id" :options="priorityOptions"/>
-          </UFormGroup>
-          <UFormGroup label="Status">
-            <USelect v-model="form.status_id" :options="statusOptions"/>
-          </UFormGroup>
+        <div class="space-y-4">
+          <UFormField label="Title" required :error="fieldErrors?.title">
+            <UInput v-model="form.title" placeholder="Task title" class="w-full"/>
+          </UFormField>
+          <UFormField label="Description" :error="fieldErrors?.description">
+            <UTextarea v-model="form.description" placeholder="Optional description" class="w-full"/>
+          </UFormField>
+          <UFormField label="Deadline" :error="fieldErrors?.deadline">
+            <UInput v-model="form.deadline" type="date"/>
+          </UFormField>
+          <div class="grid grid-cols-2 gap-4">
+            <UFormField label="Priority" :error="fieldErrors?.priority_id">
+              <USelect v-model="form.priority_id" :items="priorityOptions" value-key="value" class="w-full"/>
+            </UFormField>
+            <UFormField label="Status" :error="fieldErrors?.status_id">
+              <USelect v-model="form.status_id" :items="statusOptions" value-key="value" class="w-full"/>
+            </UFormField>
+          </div>
         </div>
-      </div>
 
-      <template #footer>
-        <div class="flex justify-end gap-2">
-          <UButton variant="ghost" @click="close">Cancel</UButton>
-          <UButton :disabled="!form.title" @click="handleSave">
-            {{ isEdit ? 'Save' : 'Create' }}
-          </UButton>
-        </div>
-      </template>
-    </UCard>
+        <template #footer>
+          <div class="flex justify-end gap-2">
+            <UButton variant="ghost" @click="close">Cancel</UButton>
+            <UButton :disabled="!form.title" @click="handleSave">
+              {{ isEdit ? 'Save' : 'Create' }}
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </template>
   </UModal>
 </template>

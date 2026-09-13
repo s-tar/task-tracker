@@ -20,9 +20,13 @@ const page = computed(() => Number(route.query.page) || 1)
 
 const showModal = ref(false)
 const currentTask = ref<Task | null>(null)
+const formFieldErrors = ref<Record<string, string>>({})
 
 watch(showModal, (open) => {
-  if (!open) currentTask.value = null
+  if (!open) {
+    currentTask.value = null
+    formFieldErrors.value = {}
+  }
 })
 
 function openCreateForm() {
@@ -69,14 +73,33 @@ watch([page, () => route.query.status_id, () => route.query.priority_id], ([, sI
   loadTasksList()
 })
 
-async function handleSave(data: TaskCreatePayload) {
-  if (currentTask.value) {
-    await tasksStore.updateTask(currentTask.value.id, data)
-  } else {
-    await tasksStore.createTask(data)
-    await loadTasksList()
+function parseFieldErrors(err: unknown): Record<string, string> {
+  const detail = (err as any)?.data?.detail
+  if (!Array.isArray(detail)) return {}
+  const result: Record<string, string> = {}
+  for (const item of detail) {
+    const field = item.loc?.[item.loc.length - 1]
+    if (field && item.msg) result[String(field)] = item.msg
   }
-  showModal.value = false
+  return result
+}
+
+async function handleSave(data: TaskCreatePayload) {
+  formFieldErrors.value = {}
+  try {
+    if (currentTask.value) {
+      await tasksStore.updateTask(currentTask.value.id, data)
+    } else {
+      await tasksStore.createTask(data)
+      await loadTasksList()
+    }
+    showModal.value = false
+  } catch (err) {
+    const parsed = parseFieldErrors(err)
+    if (Object.keys(parsed).length) {
+      formFieldErrors.value = parsed
+    }
+  }
 }
 
 async function handleDelete(id: number) {
@@ -114,6 +137,7 @@ async function handleDelete(id: number) {
         :task="currentTask"
         :priority-options="priorityOptions"
         :status-options="statusOptions"
+        :field-errors="formFieldErrors"
         @save="handleSave"
     />
   </UContainer>

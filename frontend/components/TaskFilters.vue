@@ -20,14 +20,16 @@ function onPriorityChange(val: number | null) {
     <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Filter:</span>
     <USelect
       :model-value="filterStatusId"
-      :options="statusOptions"
+      :items="statusOptions"
+      value-key="value"
       placeholder="By Status"
       class="w-44"
       @update:model-value="onStatusChange"
     />
     <USelect
       :model-value="filterPriorityId"
-      :options="priorityOptions"
+      :items="priorityOptions"
+      value-key="value"
       placeholder="By Priority"
       class="w-44"
       @update:model-value="onPriorityChange"

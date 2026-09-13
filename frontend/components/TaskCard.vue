@@ -7,19 +7,19 @@ const emit = defineEmits<{
   delete: [id: number]
 }>()
 
-const { statuses } = storeToRefs(useStatusesStore())
-const { priorities } = storeToRefs(usePrioritiesStore())
+const {statuses} = storeToRefs(useStatusesStore())
+const {priorities} = storeToRefs(usePrioritiesStore())
 
 const statusColorMap: Record<string, string> = {
-  TODO: 'gray',
-  IN_PROGRESS: 'blue',
-  DONE: 'green',
+  TODO: 'warning',
+  IN_PROGRESS: 'secondary',
+  DONE: 'primary',
 }
 
 const priorityColorMap: Record<string, string> = {
-  LOW: 'green',
-  MEDIUM: 'yellow',
-  HIGH: 'red',
+  LOW: 'primary',
+  MEDIUM: 'warning',
+  HIGH: 'error',
 }
 
 const currentStatus = computed(() => statuses.value.find((s) => s.id === props.task.status_id))
@@ -34,9 +34,10 @@ function confirmDelete() {
 </script>
 
 <template>
-  <UCard class="flex flex-col" :ui="{ body: { base: 'flex-1 flex flex-col' } }">
+  <UCard class="flex flex-col"
+         :ui="{ body: 'flex-1 flex flex-col', footer: 'p-2 sm:px-6 min-h-[50px] flex items-center' }">
     <template #header>
-      <div class="flex items-center justify-between gap-2">
+      <div class="flex items-center justify-between grow gap-2">
         <span class="font-semibold truncate">
           <UBadge :color="statusColorMap[currentStatus?.code ?? '']" variant="subtle">
             {{ currentStatus?.name ?? '—' }}
@@ -69,7 +70,7 @@ function confirmDelete() {
     <div v-else class="flex-1"/>
 
     <template #footer>
-      <div class="flex items-center justify-between gap-2">
+      <div class="flex items-center justify-between gap-2 grow">
         <div class="flex flex-col gap-0.5 text-xs text-gray-500 dark:text-gray-400 min-w-0">
           <span>Created: {{ new Date(task.created_at).toLocaleDateString() }}</span>
           <span v-if="task.deadline">Due: {{ new Date(task.deadline).toLocaleDateString() }}</span>
