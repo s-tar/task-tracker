@@ -18,8 +18,8 @@ const {priorities} = storeToRefs(usePrioritiesStore())
 const currentStatus = computed(() => statuses.value.find((s) => s.id === props.task.status_id))
 const currentPriority = computed(() => priorities.value.find((p) => p.id === props.task.priority_id))
 
-function formatDate(dateStr: string) {
-  return new Intl.DateTimeFormat('uk-UA').format(new Date(dateStr))
+function formatDate(date: Date | string) {
+  return new Intl.DateTimeFormat('uk-UA').format(date instanceof Date ? date : new Date(date))
 }
 
 function close() {
@@ -71,6 +71,7 @@ function handleDelete() {
           <div class="flex justify-between">
             <div class="flex flex-col gap-1 text-xs text-gray-500 dark:text-gray-400">
               <span>Created: {{ formatDate(task.created_at) }}</span>
+              <span v-if="task.updated_at != task.created_at">Edited: {{ formatDate(task.updated_at) }}</span>
               <span v-if="task.deadline">Due: {{ formatDate(task.deadline) }}</span>
             </div>
             <div class="flex justify-end gap-2">

@@ -23,7 +23,7 @@ class TaskOrderBy(str, Enum):
 ORDER_BY_FIELDS_MAP = {
     TaskOrderBy.DATE_CREATED: Task.created_at,
     TaskOrderBy.DATE_CREATED_DESC: Task.created_at.desc(),
-    TaskOrderBy.DEADLINE: Task.deadline,
+    TaskOrderBy.DEADLINE: Task.deadline.nulls_last(),
     TaskOrderBy.DEADLINE_DESC: Task.deadline.desc().nulls_last(),
     TaskOrderBy.TITLE: func.lower(Task.title),
     TaskOrderBy.TITLE_DESC: func.lower(Task.title).desc(),

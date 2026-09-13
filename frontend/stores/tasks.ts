@@ -11,7 +11,7 @@ export const useTasksStore = defineStore('TasksStore', () => {
     const filterStatusId = ref<number | null>(null)
     const filterPriorityId = ref<number | null>(null)
     const filterSearch = ref<string | null>(null)
-    const filterOrderBy = ref<string>('deadline_desc')
+    const filterOrderBy = ref<string>('deadline')
 
     function setFilters(statusId: number | null, priorityId: number | null, search: string | null = filterSearch.value) {
         filterStatusId.value = statusId

@@ -21,7 +21,7 @@ async def list_tasks(
     search: str = None,
     status_id: int = None,
     priority_id: int = None,
-    order_by: TaskOrderBy = TaskOrderBy.DEADLINE_DESC,
+    order_by: TaskOrderBy = TaskOrderBy.DEADLINE,
 ):
     page = page if page > 0 else 1
     tasks = await task_service.get_tasks(

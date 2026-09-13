@@ -13,8 +13,8 @@ const {priorities} = storeToRefs(usePrioritiesStore())
 const currentStatus = computed(() => statuses.value.find((s) => s.id === props.task.status_id))
 const currentPriority = computed(() => priorities.value.find((p) => p.id === props.task.priority_id))
 
-function formatDate(dateStr: string) {
-  return new Intl.DateTimeFormat('uk-UA').format(new Date(dateStr))
+function formatDate(date: Date | string) {
+  return new Intl.DateTimeFormat('uk-UA').format(date instanceof Date ? date : new Date(date))
 }
 
 const showDeleteConfirm = ref(false)
@@ -55,7 +55,8 @@ function handleDetailDelete(id: number) {
     <template #footer>
       <div class="flex items-center justify-between gap-2 grow">
         <div class="flex flex-col gap-0.5 text-xs text-gray-500 dark:text-gray-400 min-w-0">
-          <span>Created: {{ formatDate(task.created_at) }}</span>
+          <span v-if="task.updated_at != task.created_at">Edited: {{ formatDate(task.updated_at) }}</span>
+          <span v-else>Created: {{ formatDate(task.created_at) }}</span>
           <span v-if="task.deadline">Due: {{ formatDate(task.deadline) }}</span>
         </div>
         <StatusBadge :status="currentStatus"/>
