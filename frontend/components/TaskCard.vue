@@ -14,7 +14,10 @@ const currentStatus = computed(() => statuses.value.find((s) => s.id === props.t
 const currentPriority = computed(() => priorities.value.find((p) => p.id === props.task.priority_id))
 
 function formatDate(date: Date | string) {
-  return new Intl.DateTimeFormat('uk-UA').format(date instanceof Date ? date : new Date(date))
+  return new Intl.DateTimeFormat('uk-UA', {
+    dateStyle: 'short',
+    timeStyle: 'short'
+  }).format(date instanceof Date ? date : new Date(date))
 }
 
 const showDeleteConfirm = ref(false)
